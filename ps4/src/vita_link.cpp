@@ -618,7 +618,9 @@ bool VitaLink::start_audio(AudioRing *ring)
     audio_problem_ = "";
     if (!dev_.audio_isoc_ep)
     {
-        audio_problem_ = "This Vita stream has no USB audio (needs the VitaUSBStream build)";
+        audio_problem_ = "No microphone in the Vita's stream. Install the VitaUSBStream "
+                         "build (webcam + mic), reboot the Vita and turn streaming on again. "
+                         "Picture and controls work without it.";
         log_line("audio: %s", audio_problem_);
         return false;
     }
@@ -631,13 +633,13 @@ bool VitaLink::start_audio(AudioRing *ring)
     libusb_transfer *probe = sceUsbdAllocTransfer(kIsoPackets);
     if (!probe)
     {
-        audio_problem_ = "Out of memory for audio transfers";
+        audio_problem_ = "Not enough memory to start sound. Exit and reopen VITA4.";
         return false;
     }
     if (vd_xfer_layout_detect(probe, kIsoPackets, &layout_) == VD_XFER_LAYOUT_NONE)
     {
         sceUsbdFreeTransfer(probe);
-        audio_problem_ = "Audio isn't supported by this firmware's USB library";
+        audio_problem_ = "This PS4 firmware can't carry the Vita's sound. Picture and controls still work.";
         log_line("audio: unknown libusb_transfer layout - audio disabled");
         return false;
     }
@@ -659,7 +661,7 @@ bool VitaLink::start_audio(AudioRing *ring)
         sceUsbdFreeTransfer(probe);
         sceUsbdReleaseInterface(handle_, as);
         audio_claimed_ = false;
-        audio_problem_ = "The PS4 wouldn't switch on the Vita's audio interface";
+        audio_problem_ = "The PS4 couldn't start the Vita's sound. Reboot the Vita, reconnect the cable, turn streaming on, then restart VITA4.";
         return false;
     }
 
@@ -700,7 +702,7 @@ bool VitaLink::start_audio(AudioRing *ring)
     }
     if (submitted == 0)
     {
-        audio_problem_ = "The PS4 refused the audio transfers";
+        audio_problem_ = "The PS4 couldn't start the Vita's sound. Reboot the Vita, reconnect the cable, then restart VITA4.";
         stop_audio();
         return false;
     }
@@ -921,14 +923,16 @@ bool VitaLink::start_audio_ugen(AudioRing *ring)
     audio_problem_ = "";
     if (!ugen_->dev.audio_isoc_ep)
     {
-        audio_problem_ = "This Vita stream has no USB audio (needs the VitaUSBStream build)";
+        audio_problem_ = "No microphone in the Vita's stream. Install the VitaUSBStream "
+                         "build (webcam + mic), reboot the Vita and turn streaming on again. "
+                         "Picture and controls work without it.";
         return false;
     }
     if (ugen_->uac_thread.joinable())
         stop_audio_ugen();
     if (vd_uac_session_open(&ugen_->uac, &ugen_->dev) != 0)
     {
-        audio_problem_ = "Couldn't open the Vita's audio interface";
+        audio_problem_ = "The PS4 couldn't open the Vita's sound. Reboot the Vita, reconnect the cable, then restart VITA4.";
         log_line("ugen: audio session open failed (errno %d)", errno);
         return false;
     }
@@ -939,7 +943,7 @@ bool VitaLink::start_audio_ugen(AudioRing *ring)
     {
         vd_uac_session_close(&ugen_->uac);
         ugen_->uac_open = false;
-        audio_problem_ = "The PS4 refused the audio stream";
+        audio_problem_ = "The PS4 refused the Vita's sound. Reboot the Vita, reconnect the cable, then restart VITA4.";
         return false;
     }
     ring_ = ring;
