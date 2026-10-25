@@ -183,13 +183,39 @@ Turn on **Stats** in the menu to see:
 | [docs/VITA_INPUT_API.md](docs/VITA_INPUT_API.md) | the controller / touch protocol between console and Vita |
 | [vita-side/input-receiver/README.md](vita-side/input-receiver/README.md) | the Vita plugin: what it does and how it is built |
 
+### Common problems
+
+**Sound says "Not available" (but picture and controls work).**
+VITA4 gets the sound from the Vita's USB *microphone* channel. If the menu
+shows Sound as "Not available", the Vita is almost always running a
+*video-only* streaming plugin instead of the full **VitaUSBStream** build
+(webcam **and** microphone). Install the VitaUSBStream build, reboot the Vita,
+turn streaming on again, then restart VITA4. The menu now explains the exact
+reason on screen whenever sound can't start, so you usually won't need the log.
+
+**No picture / "waiting for the picture".**
+Open **VitaUSBStream** on the Vita and switch streaming **on** (you have to do
+this again after every Vita reboot), use a data USB cable plugged straight into
+the PS4 (not a hub or a charge-only cable), and make sure the
+`input_receiver.skprx` line is in `ur0:tai/config.txt` above the
+`VitaUSBStream.skprx` line.
+
+**Controls don't reach the Vita.**
+Check that `input_receiver.skprx` is installed and listed in
+`ur0:tai/config.txt`, and that **Controller to Vita** is **On** in the menu.
+
+**Choppy picture or a frame-rate cap.**
+This is expected over USB 2.0 — see [Current Status](#current-status-of-vita4)
+for the details and the recommended picture settings.
+
 ### Reporting a problem
 
-Please open an issue with:
+If the on-screen message and the notes above don't solve it, please open an
+issue with:
 
 1. the VITA4 version, your PS4 model and firmware;
 2. the game and what happened;
-3. a photo of the screen with **Stats** on;
+3. a photo of the screen with **Stats** on (or of the Sound message);
 4. if possible, the log file `/data/vita4/vita4.log` from the PS4 (via FTP).
 
 ---

@@ -589,6 +589,19 @@ void ui_draw_live_overlay(Canvas &c, const UiModel &m)
         c.text(font_body, cx + 30 + kw + 32 + 22, ry + (50 - font_body.height) / 2, kKeys[i][1],
                kMuted);
     }
+
+    // When sound couldn't start, show the real reason and the fix in the empty
+    // space above the shortcuts, so the player can solve it themselves instead
+    // of seeing a dead-end "Not available" and having to ask.
+    if (m.menu_sel == MENU_SOUND && m.audio_state == 2 && m.audio_note[0])
+    {
+        const int nx = cx, nw = cw, ny = y + 10, nh = 170;
+        c.round_rect((float)nx, (float)ny, (float)nw, (float)nh, 26, kPanel, 235);
+        c.round_rect_outline((float)nx, (float)ny, (float)nw, (float)nh, 26, 1.5f, kOutline);
+        c.text(font_label, nx + 36, ny + 26, "Sound not available", kWaiting);
+        draw_wrapped(c, font_small, nx + 36, ny + 26 + font_label.height + 16, nw - 72,
+                     m.audio_note, kMuted);
+    }
 }
 
 void ui_window_rect(int *x, int *y, int *w, int *h)
